@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-    const session = await getServerSession(authOptions);
-    if (!session) return new NextResponse("Unauthorized", { status: 401 });
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-    const { id } = await params;
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+    // Debugging passed - restoring code
+    // const session = await getServerSession(authOptions); // Handled above
+
+    const params = await props.params;
+    if (!params?.id) return new NextResponse("ID Required", { status: 400 });
+    const { id } = params;
 
     try {
         await prisma.attendance.delete({

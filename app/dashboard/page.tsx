@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link"; // Use Link component for client-side navigation
 
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
@@ -27,7 +28,7 @@ export default async function DashboardPage() {
                     <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>
                         Administrar inscripciones, asistencia y calificaciones.
                     </p>
-                    <a href="/students" className="btn">Ir a Estudiantes</a>
+                    <Link href="/students" className="btn">Ir a Estudiantes</Link>
                 </div>
 
                 <div className="card">
@@ -35,7 +36,7 @@ export default async function DashboardPage() {
                     <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>
                         Administrar docentes y personal administrativo.
                     </p>
-                    <a href="/teachers" className="btn">Ir a Personal</a>
+                    <Link href="/staff" className="btn">Ir a Personal</Link>
                 </div>
 
                 <div className="card">
@@ -43,7 +44,10 @@ export default async function DashboardPage() {
                     <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>
                         Generar reportes de asistencia y rendimiento.
                     </p>
-                    <a href="/reports" className="btn">Ver Reportes</a>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <Link href="/students/reports" className="btn" style={{ fontSize: '0.8rem' }}>Estudiantes</Link>
+                        <Link href="/staff/reports" className="btn" style={{ fontSize: '0.8rem' }}>Personal</Link>
+                    </div>
                 </div>
             </div>
         </div>

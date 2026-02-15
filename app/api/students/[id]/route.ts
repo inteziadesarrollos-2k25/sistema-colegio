@@ -1,20 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 // Define ContextProps correctly for Next.js 15+
 interface ContextProps {
     params: Promise<{ id: string }>;
 }
 
-export async function PUT(req: Request, { params }: ContextProps) {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export async function PUT(req: Request, props: ContextProps) {
     const session = await getServerSession(authOptions);
     if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
     try {
         // Await params before using properties
-        const { id } = await params;
+        const params = await props.params;
+        const { id } = params;
         const body = await req.json();
         const { name, nationalId, dateOfBirth, grade } = body;
 
@@ -35,12 +39,14 @@ export async function PUT(req: Request, { params }: ContextProps) {
     }
 }
 
-export async function DELETE(req: Request, { params }: ContextProps) {
+
+export async function DELETE(req: Request, props: ContextProps) {
     const session = await getServerSession(authOptions);
     if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
     try {
-        const { id } = await params;
+        const params = await props.params;
+        const { id } = params;
         await prisma.student.delete({
             where: { id }
         });

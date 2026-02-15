@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -10,12 +10,16 @@ interface ContextProps {
     params: Promise<{ id: string }>;
 }
 
-export async function PUT(req: Request, { params }: ContextProps) {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export async function PUT(req: Request, props: ContextProps) {
     const session = await getServerSession(authOptions);
     if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
     try {
-        const { id } = await params;
+        const params = await props.params;
+        const { id } = params;
         const formData = await req.formData();
         const title = formData.get('title') as string;
         const type = formData.get('type') as string;
@@ -56,12 +60,14 @@ export async function PUT(req: Request, { params }: ContextProps) {
     }
 }
 
-export async function DELETE(req: Request, { params }: ContextProps) {
+
+export async function DELETE(req: Request, props: ContextProps) {
     const session = await getServerSession(authOptions);
     if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
     try {
-        const { id } = await params;
+        const params = await props.params;
+        const { id } = params;
         await prisma.document.delete({
             where: { id }
         });

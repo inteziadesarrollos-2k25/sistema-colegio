@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce'; // You might need to install this or implement a debounce hook. I'll stick to simple timer for now to minimize deps
+// Removed use-debounce dependency to fix build error
 import { useState, useEffect } from 'react';
 import { GRADES } from '@/lib/constants';
 
