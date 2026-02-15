@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  username      String    @unique
+  password      String
+  role          String    @default("TEACHER") // ADMIN, TEACHER, STAFF
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  teacherProfile TeacherProfile?
+  attendance     Attendance[]     // Attendance records for this user (if teacher/staff)
+
+  // Security Questions (Hashed Answers)
+  securityQ1 String? @default("Nombre de tu primera mascota")
+  securityA1 String? 
+  securityQ2 String? @default("Ciudad de nacimiento")
+  securityA2 String?
+  securityQ3 String? @default("Nombre de tu abuela materna")
+  securityA3 String?
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  name        String
+  dateOfBirth DateTime
+  nationalId  String   @unique
+  grade       String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attendance      Attendance[]
+  academicRecords AcademicRecord[]
+  documents       Document[]
+}
+
+model TeacherProfile {
+  id             String @id @default(cuid())
+  userId         String @unique
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  identification String @unique
+  position       String
+  educationLevel String
+}
+
+
+
+model AcademicRecord {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  subject   String
+  grade     Float
+  term      String
+  comments  String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Staff {
+  id          String   @id @default(cuid())
+  name        String
+  nationalId  String   @unique
+  role        String   // DOCENTE, ADMINISTRATIVO, OBRERO
+  position    String
+  email       String?
+  phone       String?
+  hireDate    DateTime?
+  isActive    Boolean  @default(true)
+  
+  attendance  Attendance[]
+  documents   Document[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?  // Description or text content
+  fileUrl     String?  // Path to file if uploaded
+  type        String   // EXPEDIENTE, CONSTANCIA, ACTA, BOLETIN
+  
+  studentId   String?
+  student     Student? @relation(fields: [studentId], references: [id])
+  
+  staffId     String?
+  staff       Staff?   @relation(fields: [staffId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  status    String   // PRESENT, ABSENT, LATE, EXCUSED
+  reason    String?  // For justification
+  entryTime String?  // Optional entry time (HH:mm)
+  exitTime  String?  // Optional exit time (HH:mm)
+  fileUrl   String?  // Attachment for justification (PDF/Image)
+  
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id])
+  
+  userId    String?  // Keep for User-based attendance if needed
+  user      User?    @relation(fields: [userId], references: [id])
+  
+  staffId   String?
+  staff     Staff?   @relation(fields: [staffId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
