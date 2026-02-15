@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const dynamic = 'force-dynamic';
+// Force deploy: 2026-02-15T11:20:00
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
